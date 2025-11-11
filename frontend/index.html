@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Padaria - Gerenciador de Produtos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5e6d3 0%, #e8d4b8 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #5c3d2e;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.8;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            color: #5c3d2e;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #d4a574;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            color: #5c3d2e;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e8d4b8;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #d4a574;
+        }
+
+        button {
+            background: linear-gradient(135deg, #d4a574 0%, #c9935f 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3);
+        }
+
+        .products-list {
+            list-style: none;
+        }
+
+        .product-item {
+            background: #f9f5f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #d4a574;
+            gap: 15px;
+        }
+
+        .product-foto {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #e8d4b8;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-info h3 {
+            color: #5c3d2e;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .product-info p {
+            color: #d4a574;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            padding: 8px 12px;
+            font-size: 0.9em;
+        }
+
+        .btn-delete:hover {
+            background: #c0392b;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 30px;
+        }
+
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🥐 Padaria</h1>
+            <p>Gerenciador de Produtos</p>
+        </header>
+
+        <div class="content">
+            <!-- Adicionar Produto -->
+            <div class="card">
+                <h2>Adicionar Produto</h2>
+                <div id="statusAdd"></div>
+                <div class="form-group">
+                    <label for="produtoNome">Nome do Produto</label>
+                    <input type="text" id="produtoNome" placeholder="Ex: Pão Francês">
+                </div>
+                <div class="form-group">
+                    <label for="produtoPreco">Preço (R$)</label>
+                    <input type="number" id="produtoPreco" placeholder="Ex: 5.50" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="produtoFoto">URL da Foto</label>
+                    <input type="url" id="produtoFoto" placeholder="Ex: https://exemplo.com/foto.jpg">
+                </div>
+                <button onclick="adicionarProduto()">Adicionar Produto</button>
+            </div>
+
+            <!-- Lista de Produtos -->
+            <div class="card">
+                <h2>Produtos Cadastrados</h2>
+                <div id="statusList"></div>
+                <ul class="products-list" id="produtosList">
+                    <div class="empty-state">Carregando produtos...</div>
+                </ul>
+                <button onclick="carregarProdutos()" style="margin-top: 15px; background: #95a5a6;">Atualizar Lista</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuração
+        const API_URL = 'http://localhost:3000';
+
+        // Carregar produtos ao abrir
+        document.addEventListener('DOMContentLoaded', carregarProdutos);
+
+        // Função: Carregar produtos
+        async function carregarProdutos() {
+            try {
+                const response = await fetch(`${API_URL}/produtos`);
+                const produtos = await response.json();
+
+                const lista = document.getElementById('produtosList');
+                
+                if (!Array.isArray(produtos) || produtos.length === 0) {
+                    lista.innerHTML = '<div class="empty-state">Nenhum produto cadastrado</div>';
+                    return;
+                }
+
+                lista.innerHTML = produtos.map(p => `
+                    <li class="product-item">
+                        <img src="${p.foto || 'https://via.placeholder.com/80'}" alt="${p.nome}" class="product-foto">
+                        <div class="product-info">
+                            <h3>${p.nome || 'Sem nome'}</h3>
+                            <p>R$ ${parseFloat(p.preco || 0).toFixed(2)}</p>
+                        </div>
+                        <div class="product-actions">
+                            <button class="btn-delete" onclick="deletarProduto(${p.id})">Deletar</button>
+                        </div>
+                    </li>
+                `).join('');
+
+                mostrarStatus('statusList', `${produtos.length} produtos carregados`, 'success');
+            } catch (error) {
+                console.error('Erro:', error);
+                mostrarStatus('statusList', 'Erro ao carregar produtos', 'error');
+            }
+        }
+
+        // Função: Adicionar produto
+        async function adicionarProduto() {
+            const nome = document.getElementById('produtoNome').value.trim();
+            const preco = document.getElementById('produtoPreco').value.trim();
+            const foto = document.getElementById('produtoFoto').value.trim();
+
+            if (!nome || !preco || !foto) {
+                mostrarStatus('statusAdd', 'Preencha todos os campos', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/produtos`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, preco, foto })
+                });
+
+                if (response.ok) {
+                    mostrarStatus('statusAdd', 'Produto adicionado com sucesso!', 'success');
+                    document.getElementById('produtoNome').value = '';
+                    document.getElementById('produtoPreco').value = '';
+                    document.getElementById('produtoFoto').value = '';
+                    carregarProdutos();
+                } else {
+                    mostrarStatus('statusAdd', 'Erro ao adicionar produto', 'error');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                mostrarStatus('statusAdd', 'Erro na conexão com o servidor', 'error');
+            }
+        }
+
+        // Função: Deletar produto
+        async function deletarProduto(id) {
+            if (!confirm('Tem certeza que deseja deletar?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/produtos/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    carregarProdutos();
+                    mostrarStatus('statusList', 'Produto deletado!', 'success');
+                } else {
+                    mostrarStatus('statusList', 'Erro ao deletar', 'error');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                mostrarStatus('statusList', 'Erro na conexão', 'error');
+            }
+        }
+
+        // Função auxiliar: Mostrar status
+        function mostrarStatus(elementId, mensagem, tipo) {
+            const el = document.getElementById(elementId);
+            el.className = `status ${tipo}`;
+            el.textContent = mensagem;
+            
+            setTimeout(() => {
+                el.textContent = '';
+                el.className = '';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
